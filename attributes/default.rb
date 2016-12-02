@@ -40,6 +40,9 @@ default['mediawiki']['mediawiki-checksum'] = '53f3dc6fc7108c835fbfefb09d76e84067
 # Wiki name
 default['mediawiki']['wgSitename'] = 'Sitename'
 
+# Disable allowing users to create accounts
+default['mediawiki']['wgAllowUserSignup'] = false
+
 # URL to artwork for logo. Gets copied onto wiki server. Needs to be 135 x 135 pixels.
 default['mediawiki']['wgLogo_remote'] = nil
 

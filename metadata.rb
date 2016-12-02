@@ -4,7 +4,7 @@ maintainer_email 'support+chef@gina.alaska.edu'
 license          'Apache 2.0'
 description      'Installs/Configures mediawiki'
 long_description 'Installs/Configures mediawiki'
-version          '1.5.3'
+version          '1.5.4'
 
 supports 'rhel', '=6'
 

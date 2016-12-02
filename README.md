@@ -141,6 +141,11 @@ default['mediawiki']['wgLDAPPreferences'] = { blah_example_com: "array( 'email' 
 default['mediawiki']['wgLDAPDisableAutoCreate'] = { blah_example_com: false }
 ```
 
+When LDAP is disabled you might want to allow users to sign up for accounts
+```ruby
+default['mediawiki']['wgAllowUserSignup'] = true
+```
+
 SSL Cert
 
 ```ruby
