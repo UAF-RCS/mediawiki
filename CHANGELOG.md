@@ -1,4 +1,4 @@
-# 2.1.0
+# 2.1.1
 
 * Added allow_everyone_edit, allow_everyone_read, and allow_create_account attributes
 
