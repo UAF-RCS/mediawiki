@@ -1,3 +1,7 @@
+# 2.1.0
+
+* Added allow_everyone_edit, allow_everyone_read, and allow_create_account attributes
+
 # 2.0.0
 
 * Updated apache2 cookbook from 3.1.0 to 3.3.0

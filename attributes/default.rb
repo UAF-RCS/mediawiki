@@ -14,6 +14,11 @@ elsif platform_family?('debian')
   default['mediawiki']['group'] = 'www-data'
 end
 
+# Non-user permissions
+default['mediawiki']['allow_everyone_edit'] = 'false'
+default['mediawiki']['allow_everyone_read'] = 'true'
+default['mediawiki']['allow_create_account'] = 'true'
+
 # FQDN of wiki host
 default['mediawiki']['servername'] = 'localhost'
 
