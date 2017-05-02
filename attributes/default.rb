@@ -44,7 +44,7 @@ default['mediawiki']['wgSitename'] = 'Sitename'
 default['mediawiki']['wgLogo_remote'] = nil
 
 # Allowed uploaded file types
-default['mediawiki']['wgFileExtensions'] = [ 'png', 'gif', 'jpg', 'jpeg' ]
+default['mediawiki']['wgFileExtensions'] = ['png', 'gif', 'jpg', 'jpeg']
 
 # Database setup
 default['mediawiki']['local_database'] = true
@@ -59,7 +59,7 @@ default['mediawiki']['wgBlockDisablesLogin'] = false
 # LDAP setup. If you don't want it just set first setting to false.
 default['mediawiki']['ldap'] = true
 default['mediawiki']['ldapplugin_url'] = 'https://extdist.wmflabs.org/dist/extensions/LdapAuthentication-REL1_25-d4db6f0.tar.gz'
-default['mediawiki']['wgLDAPDomainNames'] = [ 'blah_example_com' ]
+default['mediawiki']['wgLDAPDomainNames'] = ['blah_example_com']
 default['mediawiki']['wgLDAPServerNames'] = { blah_example_com: 'blah.example.com' }
 default['mediawiki']['wgLDAPEncryptionType'] = { blah_example_com: 'ssl' }
 default['mediawiki']['wgLDAPSearchAttributes'] = { blah_example_com: 'systemid' }
@@ -76,7 +76,7 @@ if platform_family?('rhel')
 end
 
 # PHP Settings - Currently only setting upload size stuff but could be used to set other special PHP settings
-normal['php']['directives'] = { upload_max_filesize: "20M", post_max_size: "20M" }
+normal['php']['directives'] = { upload_max_filesize: '20M', post_max_size: '20M' }
 
 # Database version
 normal['postgresql']['version'] = '9.3'

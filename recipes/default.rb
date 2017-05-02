@@ -24,7 +24,7 @@ include_recipe 'tar::default'
 include_recipe 'chef-vault::default'
 include_recipe 'apache2::default'
 include_recipe 'apache2::mod_ssl'
-include_recipe 'apache2::mod_php5'
+include_recipe 'apache2::mod_php'
 include_recipe 'php::ini'
 include_recipe 'ssl-vault::default'
 
@@ -55,10 +55,10 @@ directory node['mediawiki']['install_dir'] do
 end
 
 tar_extract node['mediawiki']['package_url'] do
-    target_dir node['mediawiki']['install_dir']
-    creates "#{node['mediawiki']['install_dir']}/extensions"
-    checksum '53f3dc6fc7108c835fbfefb09d76e84067112538aaed433d89d7d4551dc205ba'
-    tar_flags ['--strip 1']
+  target_dir node['mediawiki']['install_dir']
+  creates "#{node['mediawiki']['install_dir']}/extensions"
+  checksum '53f3dc6fc7108c835fbfefb09d76e84067112538aaed433d89d7d4551dc205ba'
+  tar_flags ['--strip 1']
 end
 
 if node['mediawiki']['local_database'] == true
@@ -74,37 +74,37 @@ if node['mediawiki']['local_database'] == true
     end
 
     postgresql_connection_info = { host: '127.0.0.1',
-                                   port: "#{node['mediawiki']['wgDBport']}",
+                                   port: node['mediawiki']['wgDBport'],
                                    username: 'postgres',
-                                   password: "#{node['postgresql']['password']['postgres']}" }
+                                   password: node['postgresql']['password']['postgres'] }
 
-    postgresql_database "#{node['mediawiki']['wgDBname']}" do
+    postgresql_database node['mediawiki']['wgDBname'] do
       connection postgresql_connection_info
       action :create
     end
 
-    postgresql_database_user "#{node['mediawiki']['wgDBuser']}" do
+    postgresql_database_user node['mediawiki']['wgDBuser'] do
       connection postgresql_connection_info
-      password "#{node['mediawiki']['wgDBpassword']}"
+      password node['mediawiki']['wgDBpassword']
       action :create
     end
 
-    postgresql_database_user "#{node['mediawiki']['wgDBuser']}" do
+    postgresql_database_user node['mediawiki']['wgDBuser'] do
       connection postgresql_connection_info
-      database_name "#{node['mediawiki']['wgDBname']}"
+      database_name node['mediawiki']['wgDBname']
       privileges [:all]
       action :grant
     end
   end
 end
 
-web_app "wiki" do
+web_app 'wiki' do
   docroot node['mediawiki']['web_dir']
   servername node['mediawiki']['servername']
-  serveraliases [node[:hostname], "wiki"]
+  serveraliases [node[:hostname], 'wiki']
   certname node['ssl-vault']['certificates'][0]
   mediawiki_dir node['mediawiki']['mediawiki_dir']
-  template "wiki.conf.erb"
+  template 'wiki.conf.erb'
 end
 
 execute "Setup MediaWiki" do
@@ -113,7 +113,7 @@ execute "Setup MediaWiki" do
 end
 
 if !node['mediawiki']['wgLogo_remote'].nil?
-  logo = "#{node['mediawiki']['wgLogo_remote']}".split('/')[-1]
+  logo = node['mediawiki']['wgLogo_remote'].split('/')[-1]
   remote_file "#{node['mediawiki']['install_dir']}/images/#{logo}" do
     source node['mediawiki']['wgLogo_remote']
     owner node['mediawiki']['owner']
@@ -126,14 +126,14 @@ end
 template "#{node['mediawiki']['install_dir']}/LocalSettings.php" do
   source 'LocalSettings.php.erb'
   mode 0600
-  owner "#{node['mediawiki']['owner']}"
-  group "#{node['mediawiki']['group']}"
+  owner node['mediawiki']['owner']
+  group node['mediawiki']['group']
 end
 
 if node['mediawiki']['ldap'] == true
   if platform_family?('rhel')
     packages = %w(php-ldap)
-  else platform_family?('debian')
+  elsif platform_family?('debian')
     packages = %w(php5-ldap)
   end
   packages.each do |pkg|
@@ -142,28 +142,22 @@ if node['mediawiki']['ldap'] == true
     end
   end
   tar_extract node['mediawiki']['ldapplugin_url'] do
-      target_dir "#{node['mediawiki']['install_dir']}/extensions"
-      creates "#{node['mediawiki']['install_dir']}/extensions/LdapAuthentication"
+    target_dir "#{node['mediawiki']['install_dir']}/extensions"
+    creates "#{node['mediawiki']['install_dir']}/extensions/LdapAuthentication"
   end
-  execute "Setup LDAP Database" do
+  execute 'Setup LDAP Database' do
     command "php #{node['mediawiki']['install_dir']}/maintenance/update.php"
   end
 end
 
-execute "Changing Permissions on MediaWiki install" do
+execute 'Changing Permissions on MediaWiki install' do
   command "chown -R  #{node['mediawiki']['owner']}:#{node['mediawiki']['group']} #{node['mediawiki']['install_dir']}"
-end
-
-if platform_family?('rhel')
-  web_service = 'httpd'
-else platform_family?('debian')
-  web_server = 'apache2'
 end
 
 service 'httpd' do
   if platform_family?('rhel')
     service_name 'httpd'
-  else platform_family?('debian')
+  elsif platform_family?('debian')
     service_name 'apache2'
   end
   action [:enable, :start]
