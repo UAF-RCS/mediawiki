@@ -1,3 +1,7 @@
+# 2.1.2
+
+* Updated LDAP plugin version
+
 # 2.1.1
 
 * Added allow_everyone_edit, allow_everyone_read, and allow_create_account attributes
