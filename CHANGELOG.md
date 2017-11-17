@@ -1,3 +1,7 @@
+# 2.1.3
+
+* Updated LDAP plugin version
+
 # 2.1.2
 
 * Updated LDAP plugin version

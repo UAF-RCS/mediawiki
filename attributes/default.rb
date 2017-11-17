@@ -63,7 +63,7 @@ default['mediawiki']['wgBlockDisablesLogin'] = false
 
 # LDAP setup. If you don't want it just set first setting to false.
 default['mediawiki']['ldap'] = true
-default['mediawiki']['ldapplugin_url'] = 'https://extdist.wmflabs.org/dist/extensions/LDAPAuthorization-REL1_29-82d6442.tar.gz'
+default['mediawiki']['ldapplugin_url'] = 'https://extdist.wmflabs.org/dist/extensions/LdapAuthentication-REL1_23-f266c74.tar.gz'
 default['mediawiki']['wgLDAPDomainNames'] = ['blah_example_com']
 default['mediawiki']['wgLDAPServerNames'] = { blah_example_com: 'blah.example.com' }
 default['mediawiki']['wgLDAPEncryptionType'] = { blah_example_com: 'ssl' }
