@@ -32,15 +32,15 @@ default['mediawiki']['vault'] = 'web_app_secrets'
 default['mediawiki']['vault_item'] = 'wiki'
 
 # Main and patch versions
-default['mediawiki']['main_version'] = '1.25'
-default['mediawiki']['patch_version'] = '.3'
+default['mediawiki']['main_version'] = '1.38'
+default['mediawiki']['patch_version'] = '.1'
+
+# Checksum for mediawiki tar.gz file
+default['mediawiki']['mediawiki-checksum'] = '117365525a0def1b209ca50857d65736b62545b877a75348a57a85d126437b31'
 
 default['mediawiki']['full_version'] = "#{node['mediawiki']['main_version']}#{node['mediawiki']['patch_version']}"
 
 default['mediawiki']['package_url'] = "http://releases.wikimedia.org/mediawiki/#{node['mediawiki']['main_version']}/mediawiki-#{node['mediawiki']['full_version']}.tar.gz"
-
-# Checksum for mediawiki tar.gz file
-default['mediawiki']['mediawiki-checksum'] = '53f3dc6fc7108c835fbfefb09d76e84067112538aaed433d89d7d4551dc205ba'
 
 # Wiki name
 default['mediawiki']['wgSitename'] = 'Sitename'
@@ -62,8 +62,9 @@ default['mediawiki']['wgDBserver'] = '127.0.0.1'
 default['mediawiki']['wgBlockDisablesLogin'] = false
 
 # LDAP setup. If you don't want it just set first setting to false.
-default['mediawiki']['ldap'] = true
-default['mediawiki']['ldapplugin_url'] = 'https://extdist.wmflabs.org/dist/extensions/LdapAuthentication-REL1_23-f266c74.tar.gz'
+# default['mediawiki']['ldap'] = true
+default['mediawiki']['ldap'] = false
+default['mediawiki']['ldapplugin_url'] = 'https://extdist.wmflabs.org/dist/extensions/LDAPAuthentication2-REL1_38-502759b.tar.gz'
 default['mediawiki']['wgLDAPDomainNames'] = ['blah_example_com']
 default['mediawiki']['wgLDAPServerNames'] = { blah_example_com: 'blah.example.com' }
 default['mediawiki']['wgLDAPEncryptionType'] = { blah_example_com: 'ssl' }
@@ -73,38 +74,12 @@ default['mediawiki']['wgLDAPUseLocal'] = false
 default['mediawiki']['wgLDAPPreferences'] = { blah_example_com: "array( 'email' => 'mail')" }
 default['mediawiki']['wgLDAPDisableAutoCreate'] = { blah_example_com: false }
 
-# SSL Cert
-normal['ssl-vault']['certificates'] = ['wiki']
-if platform_family?('rhel')
-  normal['ssl-vault']['private_key_directory'] = '/etc/pki/tls/private'
-  normal['ssl-vault']['certificate_directory'] = '/etc/pki/tls/certs'
-end
+normal['mediawiki']['certificates'] = ['wiki']
+normal['mediawiki']['private_key_directory'] = '/etc/pki/tls/private'
+normal['mediawiki']['certificate_directory'] = '/etc/pki/tls/certs'
 
 # PHP Settings - Currently only setting upload size stuff but could be used to set other special PHP settings
 normal['php']['directives'] = { upload_max_filesize: '20M', post_max_size: '20M' }
 
 # Database version
-normal['postgresql']['version'] = '9.3'
-
-# Database Configuration
-normal['postgresql']['config']['listen_addresses'] = '0.0.0.0'
-normal['postgresql']['config']['port'] = node['mediawiki']['wgDBport']
-override['postgresql']['config']['ssl'] = false
-
-if platform_family?('rhel')
-  normal['postgresql']['enable_pgdg_yum'] = true
-  normal['postgresql']['client']['packages'] = ["postgresql#{node['postgresql']['version'].split('.').join}", "postgresql#{node['postgresql']['version'].split('.').join}-devel"]
-  normal['postgresql']['server']['packages'] = ["postgresql#{node['postgresql']['version'].split('.').join}-server"]
-  normal['postgresql']['contrib']['packages'] = ["postgresql#{node['postgresql']['version'].split('.').join}-contrib"]
-  normal['postgresql']['dir'] = "/var/lib/pgsql/#{node['postgresql']['version']}/data"
-  normal['postgresql']['config']['data_directory'] = "/var/lib/pgsql/#{node['postgresql']['version']}/data"
-  normal['postgresql']['server']['service_name'] = "postgresql-#{node['postgresql']['version']}"
-elsif platform_family?('debian')
-  normal['postgresql']['enable_pgdg_apt'] = true
-  normal['postgresql']['client']['packages'] = ["postgresql-client-#{node['postgresql']['version']}", "postgresql-server-dev-#{node['postgresql']['version']}"]
-  normal['postgresql']['server']['packages'] = ["postgresql-#{node['postgresql']['version']}"]
-  normal['postgresql']['contrib']['packages'] = ["postgresql-contrib-#{node['postgresql']['version']}"]
-  normal['postgresql']['dir'] = "/var/lib/postgresql/#{node['postgresql']['version']}/main"
-  normal['postgresql']['config']['data_directory'] = "/var/lib/postgresql/#{node['postgresql']['version']}/main"
-  normal['postgresql']['server']['service_name'] = 'postgresql'
-end
+default['mediawiki']['postgreql_version'] = '12'

@@ -17,19 +17,43 @@
 # limitations under the License.
 #
 
-include_recipe 'postgresql::ruby'
-include_recipe 'postgresql::server'
-include_recipe 'database::postgresql'
 include_recipe 'tar::default'
 include_recipe 'chef-vault::default'
 include_recipe 'apache2::default'
 include_recipe 'apache2::mod_ssl'
 include_recipe 'apache2::mod_php'
 include_recipe 'php::ini'
-include_recipe 'ssl-vault::default'
+include_recipe 'acme::default'
+
 
 if platform_family?('rhel')
-  packages = %w(php-xml php-pecl-apc php-intl git ImageMagick)
+if node['platform_version'].to_f <= 8.0
+  package 'epel-release' do
+    action :install
+  end
+  remote_file "#{Chef::Config[:file_cache_path]}/remi-release-8.rpm" do
+    source 'http://rpms.remirepo.net/enterprise/remi-release-8.rpm'
+    owner 'root'
+    group 'root'
+    mode '0744'
+    action :create
+  end
+  dnf_package 'remi-release-8.rpm' do
+    source "#{Chef::Config[:file_cache_path]}/remi-release-8.rpm"
+    action :install
+  end
+  bash 'Install php' do
+    code <<-EOH
+      dnf -y install dnf-plugins-core
+      dnf module -y reset php
+      dnf module -y install php:remi-7.3
+    EOH
+  end
+  # packages = %w(php-xml php-pecl-apc php-intl git ImageMagick)
+  packages = %w(php73-php-xml php73-php php73-php-pecl-apcu php-intl git ImageMagick)
+else
+  
+end
 elsif platform_family?('debian')
   packages = %w(php-xml-parser php-apc php5-intl git ImageMagick)
 end
@@ -57,7 +81,7 @@ end
 tar_extract node['mediawiki']['package_url'] do
   target_dir node['mediawiki']['install_dir']
   creates "#{node['mediawiki']['install_dir']}/extensions"
-  checksum '53f3dc6fc7108c835fbfefb09d76e84067112538aaed433d89d7d4551dc205ba'
+  checksum node['mediawiki']['mediawiki-checksum']
   tar_flags ['--strip 1']
 end
 
@@ -73,36 +97,44 @@ if node['mediawiki']['local_database'] == true
       end
     end
 
-    postgresql_connection_info = { host: '127.0.0.1',
-                                   port: node['mediawiki']['wgDBport'],
-                                   username: 'postgres',
-                                   password: node['postgresql']['password']['postgres'] }
+    postgresql_server_install 'Setup my PostgreSQL Server' do
+      port node['mediawiki']['wgDBport'].to_i
+      version node['mediawiki']['postgreql_version']
+      password node['mediawiki']['wgDBpassword']
+      action [:install, :create]
+    end
 
     postgresql_database node['mediawiki']['wgDBname'] do
-      connection postgresql_connection_info
-      action :create
+      port node['mediawiki']['wgDBport'].to_i
+      owner 'postgres'
     end
 
-    postgresql_database_user node['mediawiki']['wgDBuser'] do
-      connection postgresql_connection_info
+    postgresql_user node['mediawiki']['wgDBuser'] do
+      port node['mediawiki']['wgDBport'].to_i
+      database node['mediawiki']['wgDBname']
       password node['mediawiki']['wgDBpassword']
-      action :create
-    end
-
-    postgresql_database_user node['mediawiki']['wgDBuser'] do
-      connection postgresql_connection_info
-      database_name node['mediawiki']['wgDBname']
-      privileges [:all]
-      action :grant
+      superuser true
+      createdb true
+      createrole true
     end
   end
+end
+
+# Generate a self-signed if we don't have a cert to prevent bootstrap problems
+acme_selfsigned "#{node['mediawiki']['servername']}" do
+  crt     "#{node['mediawiki']['certificate_directory']}/#{node['mediawiki']['certificates'][0]}.cert"
+  key     "#{node['mediawiki']['private_key_directory']}/#{node['mediawiki']['certificates'][0]}.key"
+  chain    "#{node['mediawiki']['certificate_directory']}/chain.pem"
+  owner   'root'
+  group   'root'
+  notifies :restart, "service[httpd]", :delayed
 end
 
 web_app 'wiki' do
   docroot node['mediawiki']['web_dir']
   servername node['mediawiki']['servername']
   serveraliases [node[:hostname], 'wiki']
-  certname node['ssl-vault']['certificates'][0]
+  certname "#{node['mediawiki']['certificates'][0]}"
   mediawiki_dir node['mediawiki']['mediawiki_dir']
   template 'wiki.conf.erb'
 end
@@ -154,6 +186,20 @@ execute 'Changing Permissions on MediaWiki install' do
   command "chown -R  #{node['mediawiki']['owner']}:#{node['mediawiki']['group']} #{node['mediawiki']['install_dir']}"
 end
 
+link '/etc/httpd/mods-enabled/php5.load' do
+  action :delete
+end
+
+link '/etc/httpd/mods-enabled/php7.load' do
+  to '/etc/httpd/mods-available/php7.load'
+  action :create
+end
+
+link '/etc/httpd/mods-enabled/php.conf' do
+  to '/etc/httpd/mods-available/php.conf'
+  action :create
+end
+
 service 'httpd' do
   if platform_family?('rhel')
     service_name 'httpd'
@@ -161,6 +207,16 @@ service 'httpd' do
     service_name 'apache2'
   end
   action [:enable, :start]
+end
+
+if !node['kitchen'].nil?
+  # Get and auto-renew the certificate from Let's Encrypt
+  acme_certificate "#{node['mediawiki']['servername']}" do
+    crt     "#{node['mediawiki']['certificate_directory']}/#{node['mediawiki']['certificates'][0]}.cert"
+    key     "#{node['mediawiki']['private_key_directory']}/#{node['mediawiki']['certificates'][0]}.key"
+    wwwroot  node['mediawiki']['web_dir']
+    notifies :restart, "service[httpd]", :delayed
+  end
 end
 
 # Remove secret attributes

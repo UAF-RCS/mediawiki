@@ -1,9 +1,9 @@
 {
   "id": "wiki",
   "wgDBuser": "wiki_user",
-  "wgDBpassword": "blah",
+  "wgDBpassword": "secretstuff",
   "admin_user": "admin",
-  "admin_password": "blah",
+  "admin_password": "secretstuff",
   "wgSecretKey": "456f5233c29d99bba572957ff3984e773b4633ba802466572793ea4889ed14c5",
   "wgLDAPProxyAgent": { "blah_example_com":"uid=blahuser,ou=resource,dc=blah,dc=com" },
   "wgLDAPProxyAgentPassword": { "blah_example_com":"blah" }

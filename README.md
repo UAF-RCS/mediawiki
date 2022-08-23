@@ -144,10 +144,10 @@ default['mediawiki']['wgLDAPDisableAutoCreate'] = { blah_example_com: false }
 SSL Cert
 
 ```ruby
-override['ssl-vault']['certificates'] = ['wiki']
+override['rcs-ssl-vault']['certificates'] = ['wiki']
 if platform_family?('rhel')
-  override['ssl-vault']['private_key_directory'] = '/etc/pki/tls/private'
-  override['ssl-vault']['certificate_directory'] = '/etc/pki/tls/certs'
+  override['rcs-ssl-vault']['private_key_directory'] = '/etc/pki/tls/private'
+  override['rcs-ssl-vault']['certificate_directory'] = '/etc/pki/tls/certs'
 end
 ```
 
