@@ -2,8 +2,10 @@
    ServerName <%= @params[:servername] %>
    ServerAlias <% @params[:serveraliases].each do |a| %><%= "#{a}" %> <% end %>
 
-   Redirect "/" "https://<%= @params[:servername] %>:443"
-
+   RewriteEngine on
+   RewriteRule ^\.well-known/.+ - [END]
+   RewriteCond %{HTTPS} off
+   RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI}
 </VirtualHost>
 <VirtualHost *:443>
    ServerName <%= @params[:servername] %>
@@ -15,6 +17,8 @@
    SSLCertificateKeyFile /etc/pki/tls/private/<%= @params[:certname] %>.key
 
    RewriteEngine on
+   # Setup for LetsEncrypt
+   RewriteRule ^\.well-known/.+ - [END]
    # Short url for wiki pages
    RewriteRule ^/?wiki(/.*)?$ %{DOCUMENT_ROOT}/<%= @params[:mediawiki_dir] %>/index.php [L]
    # Redirect / to Main Page

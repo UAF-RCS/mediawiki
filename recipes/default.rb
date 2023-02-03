@@ -17,7 +17,6 @@
 # limitations under the License.
 #
 
-include_recipe 'tar::default'
 include_recipe 'chef-vault::default'
 include_recipe 'apache2::default'
 include_recipe 'apache2::mod_ssl'
@@ -73,16 +72,31 @@ node.default['mediawiki']['wgSecretKey'] = chef_vault_item("#{node['mediawiki'][
 node.default['mediawiki']['wgLDAPProxyAgent'] = chef_vault_item("#{node['mediawiki']['vault']}", "#{node['mediawiki']['vault_item']}")['wgLDAPProxyAgent']
 node.default['mediawiki']['wgLDAPProxyAgentPassword'] = chef_vault_item("#{node['mediawiki']['vault']}", "#{node['mediawiki']['vault_item']}")['wgLDAPProxyAgentPassword']
 
-directory node['mediawiki']['install_dir'] do
+directory '/var/chef/files' do
   action :create
   recursive true
 end
 
-tar_extract node['mediawiki']['package_url'] do
-  target_dir node['mediawiki']['install_dir']
-  creates "#{node['mediawiki']['install_dir']}/extensions"
-  checksum node['mediawiki']['mediawiki-checksum']
-  tar_flags ['--strip 1']
+remote_file '/var/chef/files/mediawiki.tar.gz' do
+  source node['mediawiki']['package_url']
+  owner 'root'
+  group 'root'
+  mode '0700'
+  action :create
+end
+
+archive_file '/var/chef/files/mediawiki.tar.gz' do
+  destination "#{node['mediawiki']['web_dir']}/mediawiki-#{node['mediawiki']['full_version']}"
+  owner node['mediawiki']['owner']
+  group node['mediawiki']['group']
+  strip_components 1
+  overwrite false
+  action :extract
+end
+
+link "#{node['mediawiki']['install_dir']}" do
+  to "#{node['mediawiki']['web_dir']}/mediawiki-#{node['mediawiki']['full_version']}"
+  link_type :symbolic
 end
 
 if node['mediawiki']['local_database'] == true
@@ -209,7 +223,7 @@ service 'httpd' do
   action [:enable, :start]
 end
 
-if !node['kitchen'].nil?
+if node['kitchen'].nil?
   # Get and auto-renew the certificate from Let's Encrypt
   acme_certificate "#{node['mediawiki']['servername']}" do
     crt     "#{node['mediawiki']['certificate_directory']}/#{node['mediawiki']['certificates'][0]}.cert"
