@@ -65,14 +65,14 @@ default['mediawiki']['wgBlockDisablesLogin'] = false
 # default['mediawiki']['ldap'] = true
 default['mediawiki']['ldap'] = false
 default['mediawiki']['ldapplugin_url'] = 'https://extdist.wmflabs.org/dist/extensions/LDAPAuthentication2-REL1_38-502759b.tar.gz'
-default['mediawiki']['wgLDAPDomainNames'] = ['blah_example_com']
-default['mediawiki']['wgLDAPServerNames'] = { blah_example_com: 'blah.example.com' }
-default['mediawiki']['wgLDAPEncryptionType'] = { blah_example_com: 'ssl' }
-default['mediawiki']['wgLDAPSearchAttributes'] = { blah_example_com: 'systemid' }
-default['mediawiki']['wgLDAPBaseDNs'] = { blah_example_com: 'ou=peopledc=example,dc=com' }
+#default['mediawiki']['wgLDAPDomainNames'] = ['blah_example_com']
+#default['mediawiki']['wgLDAPServerNames'] = { blah_example_com: 'blah.example.com' }
+#default['mediawiki']['wgLDAPEncryptionType'] = { blah_example_com: 'ssl' }
+#default['mediawiki']['wgLDAPSearchAttributes'] = { blah_example_com: 'systemid' }
+#default['mediawiki']['wgLDAPBaseDNs'] = { blah_example_com: 'ou=peopledc=example,dc=com' }
 default['mediawiki']['wgLDAPUseLocal'] = false
-default['mediawiki']['wgLDAPPreferences'] = { blah_example_com: "array( 'email' => 'mail')" }
-default['mediawiki']['wgLDAPDisableAutoCreate'] = { blah_example_com: false }
+#default['mediawiki']['wgLDAPPreferences'] = { blah_example_com: "array( 'email' => 'mail')" }
+#default['mediawiki']['wgLDAPDisableAutoCreate'] = { blah_example_com: false }
 
 normal['mediawiki']['certificates'] = ['wiki']
 normal['mediawiki']['private_key_directory'] = '/etc/pki/tls/private'

@@ -4,7 +4,7 @@ maintainer_email 'chef@rcs.alaska.edu'
 license          'Apache 2.0'
 description      'Installs/Configures mediawiki'
 long_description 'Installs/Configures mediawiki'
-version          '3.0.6'
+version          '3.0.8'
 
 chef_version '> 17.0'
 

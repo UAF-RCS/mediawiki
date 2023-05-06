@@ -26,33 +26,55 @@ include_recipe 'acme::default'
 
 
 if platform_family?('rhel')
-if node['platform_version'].to_f <= 8.0
-  package 'epel-release' do
-    action :install
+  if node['platform_version'].to_f <= 8.0
+    package 'epel-release' do
+      action :install
+    end
+    remote_file "#{Chef::Config[:file_cache_path]}/remi-release-8.rpm" do
+      source 'http://rpms.remirepo.net/enterprise/remi-release-8.rpm'
+      owner 'root'
+      group 'root'
+      mode '0744'
+      action :create
+    end
+    dnf_package 'remi-release-8.rpm' do
+      source "#{Chef::Config[:file_cache_path]}/remi-release-8.rpm"
+      action :install
+    end
+    bash 'Install php' do
+      code <<-EOH
+        dnf -y install dnf-plugins-core
+        dnf module -y reset php
+        dnf module -y install php:remi-7.3
+      EOH
+    end
+    # packages = %w(php-xml php-pecl-apc php-intl git ImageMagick)
+    packages = %w(php73-php-xml php73-php php73-php-pecl-apcu php-intl git ImageMagick)
+  elsif node['platform_version'].to_f >= 9.0
+    package 'epel-release' do
+      action :install
+    end
+    remote_file "#{Chef::Config[:file_cache_path]}/remi-release-9.rpm" do
+      source 'http://rpms.remirepo.net/enterprise/remi-release-9.rpm'
+      owner 'root'
+      group 'root'
+      mode '0744'
+      action :create
+    end
+    dnf_package 'remi-release-9.rpm' do
+      source "#{Chef::Config[:file_cache_path]}/remi-release-9.rpm"
+      action :install
+    end
+    bash 'Install php' do
+      code <<-EOH
+        dnf -y install dnf-plugins-core
+        dnf module -y reset php
+        dnf module -y install php:remi-8.2
+      EOH
+    end
+    # packages = %w(php-xml php-pecl-apc php-intl git ImageMagick)
+    packages = %w(php82-php-xml php73-php php82-php-pecl-apcu php-intl git ImageMagick)
   end
-  remote_file "#{Chef::Config[:file_cache_path]}/remi-release-8.rpm" do
-    source 'http://rpms.remirepo.net/enterprise/remi-release-8.rpm'
-    owner 'root'
-    group 'root'
-    mode '0744'
-    action :create
-  end
-  dnf_package 'remi-release-8.rpm' do
-    source "#{Chef::Config[:file_cache_path]}/remi-release-8.rpm"
-    action :install
-  end
-  bash 'Install php' do
-    code <<-EOH
-      dnf -y install dnf-plugins-core
-      dnf module -y reset php
-      dnf module -y install php:remi-7.3
-    EOH
-  end
-  # packages = %w(php-xml php-pecl-apc php-intl git ImageMagick)
-  packages = %w(php73-php-xml php73-php php73-php-pecl-apcu php-intl git ImageMagick)
-else
-  
-end
 elsif platform_family?('debian')
   packages = %w(php-xml-parser php-apc php5-intl git ImageMagick)
 end
