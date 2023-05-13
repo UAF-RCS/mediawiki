@@ -82,4 +82,4 @@ normal['mediawiki']['certificate_directory'] = '/etc/pki/tls/certs'
 normal['php']['directives'] = { upload_max_filesize: '20M', post_max_size: '20M' }
 
 # Database version
-default['mediawiki']['postgreql_version'] = '12'
+default['mediawiki']['postgreql_version'] = '15'
