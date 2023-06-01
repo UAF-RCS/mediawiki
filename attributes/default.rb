@@ -20,7 +20,7 @@ default['mediawiki']['allow_everyone_read'] = 'true'
 default['mediawiki']['allow_create_account'] = 'true'
 
 # FQDN of wiki host
-default['mediawiki']['servername'] = 'localhost'
+default['mediawiki']['servername'] = 'wiki.example.com'
 
 # Port number to host SSL site on
 default['mediawiki']['port'] = '5443'

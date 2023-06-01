@@ -1,16 +1,19 @@
 ---
 driver:
   name: vagrant
-  provider: parallels
+#  provider: parallels
   network:
     - ["forwarded_port", {guest: 80, host: 8088}]
     - ["forwarded_port", {guest: 443, host: 5443}]
 
 provisioner:
   name: chef_zero
+  # product_name: cinc
+  # download_url: https://omnitruck.cinc.sh/install.sh
+  # always_update_cookbooks: true
 
 platforms:
-  - name: centos-stream-8
+  - name: rockylinux-9
 #  - name: ubuntu-20
 
 suites:

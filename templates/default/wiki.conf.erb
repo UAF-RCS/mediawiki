@@ -1,6 +1,6 @@
 <VirtualHost *:80>
-   ServerName <%= @params[:servername] %>
-   ServerAlias <% @params[:serveraliases].each do |a| %><%= "#{a}" %> <% end %>
+   ServerName <%= @server_name %>
+   ServerAlias <% @server_aliases.each do |a| %><%= "#{a}" %> <% end %>
 
    RewriteEngine on
    RewriteRule ^\.well-known/.+ - [END]
@@ -8,23 +8,23 @@
    RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI}
 </VirtualHost>
 <VirtualHost *:443>
-   ServerName <%= @params[:servername] %>
-   ServerAlias <% @params[:serveraliases].each do |a| %><%= "#{a}" %> <% end %>
-   DocumentRoot <%= @params[:docroot] %>
+   ServerName <%= @server_name %>
+   ServerAlias <% @server_aliases.each do |a| %><%= "#{a}" %> <% end %>
+   DocumentRoot <%= @document_root %>
 
    SSLEngine on
-   SSLCertificateFile /etc/pki/tls/certs/<%= @params[:certname] %>.cert
-   SSLCertificateKeyFile /etc/pki/tls/private/<%= @params[:certname] %>.key
+   SSLCertificateFile /etc/pki/tls/certs/<%= @certname %>.cert
+   SSLCertificateKeyFile /etc/pki/tls/private/<%= @certname %>.key
 
    RewriteEngine on
    # Setup for LetsEncrypt
    RewriteRule ^\.well-known/.+ - [END]
    # Short url for wiki pages
-   RewriteRule ^/?wiki(/.*)?$ %{DOCUMENT_ROOT}/<%= @params[:mediawiki_dir] %>/index.php [L]
+   RewriteRule ^/?wiki(/.*)?$ %{DOCUMENT_ROOT}/<%= @mediawiki_dir %>/index.php [L]
    # Redirect / to Main Page
-   RewriteRule ^/*$ %{DOCUMENT_ROOT}/<%= @params[:mediawiki_dir] %>/index.php [L]
+   RewriteRule ^/*$ %{DOCUMENT_ROOT}/<%= @mediawiki_dir %>/index.php [L]
 
-   <Directory <%= @params[:docroot] %>>
+   <Directory <%= @document_root %>>
      Options FollowSymLinks
      AllowOverride None
      #Order allow,deny
@@ -32,12 +32,12 @@
    </Directory>
 
    # some directories must be protected
-    <Directory <%= @params[:docroot] %>\mw-config>
+    <Directory <%= @document_root %>\mw-config>
         Options -FollowSymLinks
         AllowOverride None
     </Directory>
 
    LogLevel info
-   ErrorLog <%= @node[:apache][:log_dir] %>/<%= @params[:name] %>-error.log
-   CustomLog <%= @node[:apache][:log_dir] %>/<%= @params[:name] %>-access.log combined
+   ErrorLog <%= @log_dir %>/<%= @site_name %>-error.log
+   CustomLog <%= @log_dir %>/<%= @site_name %>-access.log combined
 </VirtualHost>

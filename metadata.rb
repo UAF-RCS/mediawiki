@@ -4,11 +4,11 @@ maintainer_email 'chef@rcs.alaska.edu'
 license          'Apache 2.0'
 description      'Installs/Configures mediawiki'
 long_description 'Installs/Configures mediawiki'
-version          '3.0.18'
+version          '4.0.0'
 
 chef_version '> 17.0'
 
-# supports 'rhel', '= 8'
+supports 'rhel'
 
 depends 'apache2', '~> 9.0.0'
 depends 'acme'

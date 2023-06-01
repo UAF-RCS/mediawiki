@@ -18,9 +18,6 @@
 #
 
 include_recipe 'chef-vault::default'
-# include_recipe 'apache2::default'
-# include_recipe 'apache2::mod_ssl'
-# include_recipe 'apache2::mod_php'
 include_recipe 'php::ini'
 include_recipe 'acme::default'
 
@@ -59,7 +56,6 @@ if platform_family?('rhel')
         dnf module -y install php:remi-7.3
       EOH
     end
-    # packages = %w(php-xml php-pecl-apc php-intl git ImageMagick)
     packages = %w(php73-php-xml php73-php php73-php-pecl-apcu php-intl git ImageMagick)
   elsif node['platform_version'].to_f >= 9.0
     package 'epel-release' do
@@ -83,11 +79,12 @@ if platform_family?('rhel')
         dnf module -y install php:remi-8.2
       EOH
     end
-    # packages = %w(php-xml php-pecl-apc php-intl git ImageMagick)
     packages = %w(php82-php-xml php82-php php82-php-pecl-apcu php-intl git ImageMagick)
   end
 elsif platform_family?('debian')
   packages = %w(php-xml-parser php-apc php5-intl git ImageMagick)
+else
+  packages = %w( )
 end
 
 packages.each do |pkg|
@@ -145,25 +142,72 @@ if node['mediawiki']['local_database'] == true
     end
 
     postgresql_install 'Setup PostgreSQL Server' do
-      # port node['mediawiki']['wgDBport'].to_i
       version node['mediawiki']['postgreql_version']
-      # password node['mediawiki']['wgDBpassword']
       action [:install, :init_server]
     end
 
-    # postgresql_database node['mediawiki']['wgDBname'] do
-    #   port node['mediawiki']['wgDBport'].to_i
-    #   owner 'postgres'
-    # end
+    postgresql_config 'postgresql-server' do
+      version '15'
+      server_config({
+        'max_connections' => 110,
+        'shared_buffers' => '128MB',
+        'dynamic_shared_memory_type' => 'posix',
+        'max_wal_size' => '1GB',
+        'min_wal_size' => '80MB',
+        'log_destination' => 'stderr',
+        'logging_collector' => true,
+        'log_directory' => 'log',
+        'log_filename' => 'postgresql-%a.log',
+        'log_rotation_age' => '1d',
+        'log_rotation_size' => 0,
+        'log_truncate_on_rotation' => true,
+        'log_line_prefix' => '%m [%p]',
+        'log_timezone' => 'Etc/UTC',
+        'datestyle' => 'iso, mdy',
+        'timezone' => 'Etc/UTC',
+        'lc_messages' => 'C',
+        'lc_monetary' => 'C',
+        'lc_numeric' => 'C',
+        'lc_time' => 'C',
+        'default_text_search_config' => 'pg_catalog.english',
+      })
+      notifies :restart, 'postgresql_service[postgresql]', :delayed
+      action :create
+    end
 
-    # postgresql_user node['mediawiki']['wgDBuser'] do
-    #   port node['mediawiki']['wgDBport'].to_i
-    #   database node['mediawiki']['wgDBname']
-    #   password node['mediawiki']['wgDBpassword']
-    #   superuser true
-    #   createdb true
-    #   createrole true
-    # end
+    postgresql_service 'postgresql' do
+      action %i(enable start)
+    end
+
+    postgresql_access 'local all all peer delete' do
+      type 'local'
+      database 'all'
+      user 'all'
+      auth_method 'peer'
+      action :delete
+    end
+
+    postgresql_access 'postgresql host superuser' do
+      type 'host'
+      database 'all'
+      user 'postgres'
+      address '127.0.0.1/32'
+      auth_method 'md5'
+      notifies :reload, 'postgresql_service[postgresql]', :delayed
+    end
+
+    postgresql_database node['mediawiki']['wgDBname'] do
+      port node['mediawiki']['wgDBport'].to_i
+      owner 'postgres'
+    end
+
+    postgresql_role node['mediawiki']['wgDBuser'] do
+      unencrypted_password node['mediawiki']['wgDBpassword']
+      superuser true
+      createdb true
+      createrole true
+      login true
+    end
   end
 end
 
@@ -182,18 +226,19 @@ apache2_default_site 'wiki' do
   docroot_dir node['mediawiki']['mediawiki_dir']
   port '443'
   template_source 'wiki.conf.erb'
+  template_cookbook 'mediawiki'
+  variables(
+    server_name: node['mediawiki']['servername'],
+    document_root: node['mediawiki']['web_dir'],
+    server_aliases: [node[:hostname], 'wiki'],
+    certname: "#{node['mediawiki']['certificates'][0]}",
+    mediawiki_dir: node['mediawiki']['mediawiki_dir'],
+    log_dir: lazy { default_log_dir },
+    site_name: 'basic_site'
+  )
   action :enable
   notifies :reload, 'apache2_service[httpd]'
 end
-
-# web_app 'wiki' do
-#   docroot node['mediawiki']['web_dir']
-#   servername node['mediawiki']['servername']
-#   serveraliases [node[:hostname], 'wiki']
-#   certname "#{node['mediawiki']['certificates'][0]}"
-#   mediawiki_dir node['mediawiki']['mediawiki_dir']
-#   template 'wiki.conf.erb'
-# end
 
 execute "Setup MediaWiki" do
   command "php #{node['mediawiki']['install_dir']}/maintenance/install.php --dbtype #{node['mediawiki']['wgDBtype']} --dbname #{node['mediawiki']['wgDBname']} --dbuser #{node['mediawiki']['wgDBuser']} --dbpass #{node['mediawiki']['wgDBpassword']} --pass #{node['mediawiki']['admin_user_password']} #{node['mediawiki']['wgSitename']} #{node['mediawiki']['admin_user']}"
@@ -247,10 +292,6 @@ if node['mediawiki']['ldap'] == true
     action :extract
   end
 
-  # tar_extract node['mediawiki']['ldapplugin_url'] do
-  #   target_dir "#{node['mediawiki']['install_dir']}/extensions"
-  #   creates "#{node['mediawiki']['install_dir']}/extensions/LdapAuthentication"
-  # end
   execute 'Setup LDAP Database' do
     command "php #{node['mediawiki']['install_dir']}/maintenance/update.php"
   end
@@ -260,30 +301,17 @@ execute 'Changing Permissions on MediaWiki install' do
   command "chown -R  #{node['mediawiki']['owner']}:#{node['mediawiki']['group']} #{node['mediawiki']['install_dir']}"
 end
 
-# link '/etc/httpd/mods-enabled/php5.load' do
-#   action :delete
-# end
+link '/usr/lib64/httpd/modules/mod_php.so' do
+  to '/opt/remi/php82/root/usr/lib64/httpd/modules/libphp.so'
+  action :create
+end
 
-# link '/etc/httpd/mods-enabled/php7.load' do
-#   to '/etc/httpd/mods-available/php7.load'
-#   action :create
-# end
+link '/etc/httpd/mods-enabled/rewrite.load' do
+  to '/etc/httpd/mods-available/rewrite.load'
+  action :create
+end
 
-# link '/etc/httpd/mods-enabled/php.conf' do
-#   to '/etc/httpd/mods-available/php.conf'
-#   action :create
-# end
-
-# service 'httpd' do
-#   if platform_family?('rhel')
-#     service_name 'httpd'
-#   elsif platform_family?('debian')
-#     service_name 'apache2'
-#   end
-#   action [:enable, :start]
-# end
-
-if node['kitchen'].nil?
+if ENV['TEST_KITCHEN'].nil?
   # Get and auto-renew the certificate from Let's Encrypt
   acme_certificate "#{node['mediawiki']['servername']}" do
     crt     "#{node['mediawiki']['certificate_directory']}/#{node['mediawiki']['certificates'][0]}.cert"
