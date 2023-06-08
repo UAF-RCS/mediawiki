@@ -221,6 +221,16 @@ acme_selfsigned "#{node['mediawiki']['servername']}" do
   notifies :restart, "apache2_service[httpd]", :delayed
 end
 
+link '/usr/lib64/httpd/modules/mod_php.so' do
+  to '/opt/remi/php82/root/usr/lib64/httpd/modules/libphp.so'
+  action :create
+end
+
+link '/etc/httpd/mods-enabled/rewrite.load' do
+  to '/etc/httpd/mods-available/rewrite.load'
+  action :create
+end
+
 apache2_default_site 'wiki' do
   default_site_name 'wiki'
   docroot_dir node['mediawiki']['mediawiki_dir']
@@ -283,12 +293,13 @@ if node['mediawiki']['ldap'] == true
     action :create
   end
   
-  archive_file '/var/chef/files/LDAPAuthentication.tar.gz' do
-    destination "#{node['mediawiki']['install_dir']}/extensions/"
+  archive_file 'LDAPAuthentication.tar.gz' do
+    path '/var/chef/files/LDAPAuthentication.tar.gz'
+    destination "#{node['mediawiki']['install_dir']}/extensions"
     owner node['mediawiki']['owner']
     group node['mediawiki']['group']
-    strip_components 1
-    overwrite false
+    strip_components 0
+    overwrite true
     action :extract
   end
 
@@ -299,16 +310,6 @@ end
 
 execute 'Changing Permissions on MediaWiki install' do
   command "chown -R  #{node['mediawiki']['owner']}:#{node['mediawiki']['group']} #{node['mediawiki']['install_dir']}"
-end
-
-link '/usr/lib64/httpd/modules/mod_php.so' do
-  to '/opt/remi/php82/root/usr/lib64/httpd/modules/libphp.so'
-  action :create
-end
-
-link '/etc/httpd/mods-enabled/rewrite.load' do
-  to '/etc/httpd/mods-available/rewrite.load'
-  action :create
 end
 
 if ENV['TEST_KITCHEN'].nil?
