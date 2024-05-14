@@ -20,72 +20,72 @@
 # include_recipe 'php::ini'
 # include_recipe 'acme::default'
 
-# if platform_family?('rhel')
-#   if node['platform_version'].to_f <= 8.0
-#     package 'epel-release' do
-#       action :install
-#     end
-#     remote_file "#{Chef::Config[:file_cache_path]}/remi-release-8.rpm" do
-#       source 'http://rpms.remirepo.net/enterprise/remi-release-8.rpm'
-#       owner 'root'
-#       group 'root'
-#       mode '0744'
-#       action :create
-#     end
-#     dnf_package 'remi-release-8.rpm' do
-#       source "#{Chef::Config[:file_cache_path]}/remi-release-8.rpm"
-#       action :install
-#     end
-#     bash 'Install php' do
-#       code <<-EOH
-#         dnf -y install dnf-plugins-core
-#         dnf module -y reset php
-#         dnf module -y install php:remi-7.3
-#       EOH
-#     end
-#     packages = %w(php73-php-xml php73-php php73-php-pecl-apcu php-intl git ImageMagick)
-#   elsif node['platform_version'].to_f >= 9.0
-#     package 'epel-release' do
-#       action :install
-#     end
-#     remote_file "#{Chef::Config[:file_cache_path]}/remi-release-9.rpm" do
-#       source 'http://rpms.remirepo.net/enterprise/remi-release-9.rpm'
-#       owner 'root'
-#       group 'root'
-#       mode '0744'
-#       action :create
-#     end
-#     dnf_package 'remi-release-9.rpm' do
-#       source "#{Chef::Config[:file_cache_path]}/remi-release-9.rpm"
-#       action :install
-#     end
-#     bash 'Install php' do
-#       code <<-EOH
-#         dnf -y install dnf-plugins-core
-#         dnf module -y reset php
-#         dnf module -y install php:remi-8.1
-#       EOH
-#     end
-#     # packages = %w(php82-php-xml php82-php php82-php-pecl-apcu php82-php-intl php82-php-pgsql git ImageMagick)
-#     packages = %w(ImageMagick git php81-php php81-php-gd php81-php-intl php81-php-json php81-php-mbstring php81-php-pecl-apcu php81-php-pgsql php81-php-xml)
-#   end
-# elsif platform_family?('debian')
-#   packages = %w(php-xml-parser php-apc php5-intl git ImageMagick)
-# else
-#   packages = %w( )
+if platform_family?('rhel')
+  if node['platform_version'].to_f <= 8.0
+    package 'epel-release' do
+      action :install
+    end
+    remote_file "#{Chef::Config[:file_cache_path]}/remi-release-8.rpm" do
+      source 'http://rpms.remirepo.net/enterprise/remi-release-8.rpm'
+      owner 'root'
+      group 'root'
+      mode '0744'
+      action :create
+    end
+    dnf_package 'remi-release-8.rpm' do
+      source "#{Chef::Config[:file_cache_path]}/remi-release-8.rpm"
+      action :install
+    end
+    bash 'Install php' do
+      code <<-EOH
+        dnf -y install dnf-plugins-core
+        dnf module -y reset php
+        dnf module -y install php:remi-7.3
+      EOH
+    end
+    packages = %w(php73-php-xml php73-php php73-php-pecl-apcu php-intl git ImageMagick)
+  elsif node['platform_version'].to_f >= 9.0
+    package 'epel-release' do
+      action :install
+    end
+    remote_file "#{Chef::Config[:file_cache_path]}/remi-release-9.rpm" do
+      source 'http://rpms.remirepo.net/enterprise/remi-release-9.rpm'
+      owner 'root'
+      group 'root'
+      mode '0744'
+      action :create
+    end
+    dnf_package 'remi-release-9.rpm' do
+      source "#{Chef::Config[:file_cache_path]}/remi-release-9.rpm"
+      action :install
+    end
+    bash 'Install php' do
+      code <<-EOH
+        dnf -y install dnf-plugins-core
+        dnf module -y reset php
+        dnf module -y install php:remi-8.2
+      EOH
+    end
+    # packages = %w(php82-php-xml php82-php php82-php-pecl-apcu php82-php-intl php82-php-pgsql git ImageMagick)
+    packages = %w(ImageMagick git php82-php php82-php-gd php82-php-intl php82-php-json php82-php-mbstring php82-php-pecl-apcu php82-php-pgsql php82-php-xml)
+  end
+elsif platform_family?('debian')
+  packages = %w(php-xml-parser php-apc php5-intl git ImageMagick)
+else
+  packages = %w( )
+end
+
+# package 'epel-release' do
+#   action :install
 # end
 
-package 'epel-release' do
-  action :install
-end
+# packages = %w(ImageMagick git php-cli php-gd php-intl php-json php-mbstring php-pecl-apcu php-pgsql php-xml php-fpm)
 
-packages = %w(ImageMagick git php-cli php-gd php-intl php-json php-mbstring php-pecl-apcu php-pgsql php-xml php-fpm)
-
-packages.each do |pkg|
-  package pkg do
-    action :install
-  end
-end
+# packages.each do |pkg|
+#   package pkg do
+#     action :install
+#   end
+# end
 
 # if platform_family?('rhel')
 #   if node['platform_version'].to_f >= 9.0
