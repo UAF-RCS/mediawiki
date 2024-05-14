@@ -33,10 +33,10 @@ default['mediawiki']['vault_item'] = 'wiki'
 
 # Main and patch versions
 default['mediawiki']['main_version'] = '1.39'
-default['mediawiki']['patch_version'] = '.4'
+default['mediawiki']['patch_version'] = '.7'
 
 # Checksum for mediawiki tar.gz file
-default['mediawiki']['mediawiki-checksum'] = '117365525a0def1b209ca50857d65736b62545b877a75348a57a85d126437b31'
+default['mediawiki']['mediawiki-checksum'] = '2be8156817d5c569fd6257342a276f91d7e530d1c0dce1134b7bf2b09ecae569'
 
 default['mediawiki']['full_version'] = "#{node['mediawiki']['main_version']}#{node['mediawiki']['patch_version']}"
 
@@ -64,9 +64,9 @@ default['mediawiki']['wgBlockDisablesLogin'] = false
 # LDAP setup. If you don't want it just set first setting to false.
 # default['mediawiki']['ldap'] = true
 default['mediawiki']['ldap'] = true
-default['mediawiki']['ldapplugin_url'] = 'https://extdist.wmflabs.org/dist/extensions/LDAPAuthentication2-REL1_39-b83f5d1.tar.gz'
-default['mediawiki']['ldapprovider_url'] = 'https://extdist.wmflabs.org/dist/extensions/LDAPProvider-REL1_39-cc5cb2c.tar.gz'
-default['mediawiki']['pluggableauth_url'] = 'https://extdist.wmflabs.org/dist/extensions/PluggableAuth-REL1_39-1cbf448.tar.gz'
+default['mediawiki']['ldapplugin_url'] = 'https://extdist.wmflabs.org/dist/extensions/LDAPAuthentication2-REL1_39-2ed6e51.tar.gz'
+default['mediawiki']['ldapprovider_url'] = 'https://extdist.wmflabs.org/dist/extensions/LDAPProvider-REL1_39-c800dd6.tar.gz'
+default['mediawiki']['pluggableauth_url'] = 'https://extdist.wmflabs.org/dist/extensions/PluggableAuth-REL1_39-1884a12.tar.gz'
 default['mediawiki']['wgLDAPDomainNames'] = ['blah_example_com']
 default['mediawiki']['wgLDAPServerNames'] = { blah_example_com: 'blah.example.com' }
 default['mediawiki']['wgLDAPEncryptionType'] = { blah_example_com: 'ssl' }
