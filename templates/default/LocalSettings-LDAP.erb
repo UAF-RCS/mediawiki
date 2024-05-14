@@ -1,7 +1,7 @@
 # LDAP
-#require_once 'extensions/LDAPAuthentication2/LdapAuthentication.php';
 wfLoadExtension( 'LDAPAuthentication2' );
-#require_once 'includes/AuthPlugin.php';
+wfLoadExtension( 'LDAPProvider' );
+wfLoadExtension( 'PluggableAuth' );
 #$wgAuth = new LdapAuthenticationPlugin();
 
 $wgLDAPUseLocal = <%= node[:mediawiki][:wgLDAPUseLocal] %>;

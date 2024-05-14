@@ -32,8 +32,8 @@ default['mediawiki']['vault'] = 'web_app_secrets'
 default['mediawiki']['vault_item'] = 'wiki'
 
 # Main and patch versions
-default['mediawiki']['main_version'] = '1.38'
-default['mediawiki']['patch_version'] = '.1'
+default['mediawiki']['main_version'] = '1.39'
+default['mediawiki']['patch_version'] = '.4'
 
 # Checksum for mediawiki tar.gz file
 default['mediawiki']['mediawiki-checksum'] = '117365525a0def1b209ca50857d65736b62545b877a75348a57a85d126437b31'
@@ -63,16 +63,18 @@ default['mediawiki']['wgBlockDisablesLogin'] = false
 
 # LDAP setup. If you don't want it just set first setting to false.
 # default['mediawiki']['ldap'] = true
-default['mediawiki']['ldap'] = false
-default['mediawiki']['ldapplugin_url'] = 'https://extdist.wmflabs.org/dist/extensions/LDAPAuthentication2-REL1_38-502759b.tar.gz'
-#default['mediawiki']['wgLDAPDomainNames'] = ['blah_example_com']
-#default['mediawiki']['wgLDAPServerNames'] = { blah_example_com: 'blah.example.com' }
-#default['mediawiki']['wgLDAPEncryptionType'] = { blah_example_com: 'ssl' }
-#default['mediawiki']['wgLDAPSearchAttributes'] = { blah_example_com: 'systemid' }
-#default['mediawiki']['wgLDAPBaseDNs'] = { blah_example_com: 'ou=peopledc=example,dc=com' }
+default['mediawiki']['ldap'] = true
+default['mediawiki']['ldapplugin_url'] = 'https://extdist.wmflabs.org/dist/extensions/LDAPAuthentication2-REL1_39-b83f5d1.tar.gz'
+default['mediawiki']['ldapprovider_url'] = 'https://extdist.wmflabs.org/dist/extensions/LDAPProvider-REL1_39-cc5cb2c.tar.gz'
+default['mediawiki']['pluggableauth_url'] = 'https://extdist.wmflabs.org/dist/extensions/PluggableAuth-REL1_39-1cbf448.tar.gz'
+default['mediawiki']['wgLDAPDomainNames'] = ['blah_example_com']
+default['mediawiki']['wgLDAPServerNames'] = { blah_example_com: 'blah.example.com' }
+default['mediawiki']['wgLDAPEncryptionType'] = { blah_example_com: 'ssl' }
+default['mediawiki']['wgLDAPSearchAttributes'] = { blah_example_com: 'systemid' }
+default['mediawiki']['wgLDAPBaseDNs'] = { blah_example_com: 'ou=peopledc=example,dc=com' }
 default['mediawiki']['wgLDAPUseLocal'] = false
-#default['mediawiki']['wgLDAPPreferences'] = { blah_example_com: "array( 'email' => 'mail')" }
-#default['mediawiki']['wgLDAPDisableAutoCreate'] = { blah_example_com: false }
+default['mediawiki']['wgLDAPPreferences'] = { blah_example_com: "array( 'email' => 'mail')" }
+default['mediawiki']['wgLDAPDisableAutoCreate'] = { blah_example_com: false }
 
 normal['mediawiki']['certificates'] = ['wiki']
 normal['mediawiki']['private_key_directory'] = '/etc/pki/tls/private'

@@ -1,0 +1,1 @@
+LoadModule php82_module /usr/lib64/httpd/modules/libphp82.so

@@ -1,16 +1,19 @@
 ---
 driver:
   name: vagrant
-#  provider: parallels
+  provider: parallels
   network:
-    - ["forwarded_port", {guest: 80, host: 8088}]
-    - ["forwarded_port", {guest: 443, host: 5443}]
+    - ["forwarded_port", {guest: 80, host: 8080}]
+    - ["forwarded_port", {guest: 443, host: 8443}]
+
+driver_config:
+  requre_chef_omnibus: true
 
 provisioner:
   name: chef_zero
-  # product_name: cinc
-  # download_url: https://omnitruck.cinc.sh/install.sh
-  # always_update_cookbooks: true
+  data_bags_path: "test/integration/default/data_bags"
+  always_update_cookbooks: true
+  chef_license: accept
 
 platforms:
   - name: rockylinux-9
@@ -18,8 +21,6 @@ platforms:
 
 suites:
   - name: default
-    data_bags_path: "test/integration/default/data_bags"
-    encrypted_data_bag_secret_key_path: "test/integration/default/encrypted_data_bag_secret"
     run_list:
       - recipe[mediawiki::default]
     attributes:
