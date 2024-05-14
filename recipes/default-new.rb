@@ -102,13 +102,13 @@ end
 # end
 
 # Grab settings from vault
-node.default['mediawiki']['wgDBuser'] = ChefVault::Item.load("#{node['mediawiki']['vault']}", "#{node['mediawiki']['vault_item']}")['wgDBuser']
-node.default['mediawiki']['wgDBpassword'] = ChefVault::Item.load("#{node['mediawiki']['vault']}", "#{node['mediawiki']['vault_item']}")['wgDBpassword']
-node.default['mediawiki']['admin_user'] = ChefVault::Item.load("#{node['mediawiki']['vault']}", "#{node['mediawiki']['vault_item']}")['admin_user']
-node.default['mediawiki']['admin_user_password'] = ChefVault::Item.load("#{node['mediawiki']['vault']}", "#{node['mediawiki']['vault_item']}")['admin_password']
-node.default['mediawiki']['wgSecretKey'] = ChefVault::Item.load("#{node['mediawiki']['vault']}", "#{node['mediawiki']['vault_item']}")['wgSecretKey']
-node.default['mediawiki']['wgLDAPProxyAgent'] = ChefVault::Item.load("#{node['mediawiki']['vault']}", "#{node['mediawiki']['vault_item']}")['wgLDAPProxyAgent']
-node.default['mediawiki']['wgLDAPProxyAgentPassword'] = ChefVault::Item.load("#{node['mediawiki']['vault']}", "#{node['mediawiki']['vault_item']}")['wgLDAPProxyAgentPassword']
+node.default['mediawiki']['wgDBuser'] = chef_vault_item("#{node['mediawiki']['vault']}", "#{node['mediawiki']['vault_item']}")['wgDBuser']
+node.default['mediawiki']['wgDBpassword'] = chef_vault_item("#{node['mediawiki']['vault']}", "#{node['mediawiki']['vault_item']}")['wgDBpassword']
+node.default['mediawiki']['admin_user'] = chef_vault_item("#{node['mediawiki']['vault']}", "#{node['mediawiki']['vault_item']}")['admin_user']
+node.default['mediawiki']['admin_user_password'] = chef_vault_item("#{node['mediawiki']['vault']}", "#{node['mediawiki']['vault_item']}")['admin_password']
+node.default['mediawiki']['wgSecretKey'] = chef_vault_item("#{node['mediawiki']['vault']}", "#{node['mediawiki']['vault_item']}")['wgSecretKey']
+node.default['mediawiki']['wgLDAPProxyAgent'] = chef_vault_item("#{node['mediawiki']['vault']}", "#{node['mediawiki']['vault_item']}")['wgLDAPProxyAgent']
+node.default['mediawiki']['wgLDAPProxyAgentPassword'] = chef_vault_item("#{node['mediawiki']['vault']}", "#{node['mediawiki']['vault_item']}")['wgLDAPProxyAgentPassword']
 
 apache2_install 'default_install' do
   notifies :restart, 'apache2_service[httpd]'
